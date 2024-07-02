@@ -1,0 +1,4 @@
+.PHONY: test
+
+test:
+	nvim --headless -c "Lazy load plenary.nvim" -c "PlenaryBustedDirectory lua/tests/ { minimal = './scipts/minimal_init.vim' }"
