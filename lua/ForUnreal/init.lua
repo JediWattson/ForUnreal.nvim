@@ -1,31 +1,37 @@
 local plenary_path = require('plenary.path')
-
-
--- TODO: move into own file
-local make_error = function(error_str)
-	error("ForUnreal -- " .. error_str)
-end
-
-local no_eng_dir_error = "no string for engine_dir. Please use path to Unreal Engine."
-local eng_dir_notfound_error = "path provided does not point to directory"
+local plenary_scan = require('plenary.scandir')
+local utils = require('ForUnreal.utils')
+local const = require('ForUnreal.const')
 
 local M = {}
 
--- PlenaryBustedDirectory lua\tests\ { minimal_init = ".\\scripts\\minimal_init.lua" }
-
 function M.setup(config)
+
+	local unreal_engine_path = ""
+
 	local engine_path = config.engine_path or ""
-	if engine_path == "" then 
-		make_error(no_eng_dir_error)
+	local engine_version = config.engine_version or ""
+	local engine_full_path = config.engine_full_path or ""
+
+	if engine_full_path ~= ""  then
+		unreal_engine_path = engine_full_path	
+	end 
+
+	if engine_path ~= "" and engine_version ~= "" then 
+		unreal_engine_path = utils.make_unreal_dir(engine_path, engine_version)
 	end
 
-	if not plenary_path:new(engine_path):exists() then
-		make_error(eng_dir_notfound_error)
+	if unreal_engine_path == "" then
+		utils.make_error(consts.no_eng_dir_error)
 	end
-	
 
-	vim.api.nvim_create_user_command('ForUnrealBuild', function() 
-		print("buillllld")		
+	if not plenary_path:new(unreal_engine_path):exists() then
+		utils.make_error(consts.eng_dir_notfound_error)
+	end
+
+	vim.api.nvim_create_user_command('ForUnrealBuild', function()
+		local current_dir = vim.fn.getcwd()
+		print(current_dir)
 	end, {})
 end
 
